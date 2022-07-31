@@ -4,7 +4,6 @@ use std::path::Path;
 use std::fs::File;
 use std::io::BufWriter;
 use clap::Parser;
-use hex_rgb::convert_hexcode_to_rgb;
 use bytes::Bytes;
 
 #[derive(Parser, Debug)]
@@ -44,6 +43,17 @@ async fn fetch_board_data(url: &String) -> Result<Bytes, reqwest::Error> {
     Ok(board_data)
 }
 
+fn palette_value_to_rgb(value: &String) -> (u8, u8, u8) {
+    let trimmed: String = if value.starts_with("#") {
+        value.strip_prefix("#").unwrap().to_owned()
+    } else {
+        value.to_string()
+    };
+    let color: u32 = u32::from_str_radix(trimmed.as_str(), 16).expect(format!("Unable to parse color hex: {}", trimmed).as_str());
+    let [.., r, g, b] = u32::to_be_bytes(color);
+    (r, g, b)
+}
+
 async fn map_board_data_palette(board_data: &Bytes, info: &PartialPxlsInfo) -> Vec<u8> {
     let mut mapped_board_data = vec![255; (info.width * info.height * 4).try_into().unwrap()];
 
@@ -55,11 +65,11 @@ async fn map_board_data_palette(board_data: &Bytes, info: &PartialPxlsInfo) -> V
             mapped_board_data[i * 4 + 3] = 0;
             continue;
         }
-        let hex_code = info.palette.get(color_index as usize).unwrap().value.to_string();
-        let color = convert_hexcode_to_rgb(hex_code).unwrap();
-        mapped_board_data[i * 4] = color.red;
-        mapped_board_data[i * 4 + 1] = color.green;
-        mapped_board_data[i * 4 + 2] = color.blue;
+        let hex_code = &info.palette.get(color_index as usize).unwrap().value;
+        let (red, green, blue) = palette_value_to_rgb(&hex_code);
+        mapped_board_data[i * 4] = red;
+        mapped_board_data[i * 4 + 1] = green;
+        mapped_board_data[i * 4 + 2] = blue;
     }
 
     mapped_board_data
