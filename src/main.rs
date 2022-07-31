@@ -14,6 +14,8 @@ struct Args {
     path: String,
     #[clap(short = 'c', long, value_parser, default_value_t = false)]
     use_canvas_code: bool,
+    #[clap(short, long, value_parser, default_value = "https://pxls.space")]
+    host: String,
 }
 
 
@@ -104,14 +106,16 @@ async fn main() {
     print!("Fetching info... ");
     io::stdout().flush().unwrap();
 
-    let info = fetch_info(&"https://pxls.space/info".to_owned())
+    let info_path = args.host.clone() + "/info";
+    let info = fetch_info(&info_path)
         .await.expect("Unable to fetch info");
 
     println!("done");
     print!("Fetching board data... ");
     io::stdout().flush().unwrap();
 
-    let board_data = fetch_board_data(&"https://pxls.space/boarddata".to_owned())
+    let board_data_path = args.host.clone() + "/boarddata";
+    let board_data = fetch_board_data(&board_data_path)
         .await.expect("Unable to fetch board data");
     
     println!("done");

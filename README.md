@@ -20,5 +20,4 @@ The output executable is in `target/release/`, titled `pxls-board-getter-rust`. 
 
 ## Roadmap
 
-- Add CLI argument to use other Pxls hosts.
 - Add support for heatmap, virginmap, and placemap.
