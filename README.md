@@ -20,6 +20,5 @@ The output executable is in `target/release/`, titled `pxls-board-getter-rust`. 
 
 ## Roadmap
 
-- Change default path to be `canvas-N.png`, where `N` is the canvas code from `/info`.
 - Add CLI argument to use other Pxls hosts.
 - Add support for heatmap, virginmap, and placemap.

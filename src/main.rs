@@ -12,6 +12,8 @@ struct Args {
     /// Path of the board PNG to save
     #[clap(short, long, value_parser, default_value = "canvas.png")]
     path: String,
+    #[clap(short = 'c', long, value_parser, default_value_t = false)]
+    use_canvas_code: bool,
 }
 
 
@@ -22,6 +24,8 @@ struct PxlsInfoColor {
 
 #[derive(Deserialize)]
 struct PartialPxlsInfo {
+    #[serde(rename = "canvasCode")]
+    canvas_code: String,
     width: u32,
     height: u32,
     palette: Vec<PxlsInfoColor>,
@@ -75,8 +79,13 @@ async fn map_board_data_palette(board_data: &Bytes, info: &PartialPxlsInfo) -> V
     mapped_board_data
 }
 
-fn make_canvas_png(mapped_board_data: &Vec<u8>, path: &str, info: &PartialPxlsInfo) {
-    let file_path = Path::new(path);
+fn make_canvas_png(mapped_board_data: &Vec<u8>, path: &str, info: &PartialPxlsInfo, args: &Args) {
+    let mut path_to_use: &str = path;
+    let path_replaced: &str = &path_to_use.replace(".png", format!("-{}.png", info.canvas_code).as_str());
+    if args.use_canvas_code {
+        path_to_use = path_replaced;
+    }
+    let file_path = Path::new(path_to_use);
     let file = File::create(file_path).expect(format!("Unable to create file at {}", path.to_owned()).as_str());
     let ref mut w = BufWriter::new(file);
 
@@ -101,5 +110,5 @@ async fn main() {
     let mapped_board_data_palette = map_board_data_palette(&board_data, &info)
         .await;
     
-    make_canvas_png(&mapped_board_data_palette, &args.path, &info);
+    make_canvas_png(&mapped_board_data_palette, &args.path, &info, &args);
 }
