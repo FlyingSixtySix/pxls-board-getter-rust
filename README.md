@@ -7,7 +7,15 @@ An exercise in learning how to fetch remote data, parse JSON (partially) into a 
 ## Usage
 
 ```
-./pxls-board-getter-rust --path FILE
+USAGE:
+    pxls-board-getter-rust [OPTIONS]
+
+OPTIONS:
+    -c, --use-canvas-code    
+    -h, --host <HOST>        [default: https://pxls.space]
+        --help               Print help information
+    -p, --path <PATH>        Path of the board PNG to save [default: canvas.png]
+    -V, --version            Print version information
 ```
 Path will default to `canvas.png`.
 
