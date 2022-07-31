@@ -2,7 +2,7 @@ use reqwest;
 use serde::Deserialize;
 use std::path::Path;
 use std::fs::File;
-use std::io::BufWriter;
+use std::io::{BufWriter, self, Write};
 use clap::Parser;
 use bytes::Bytes;
 
@@ -101,14 +101,31 @@ fn make_canvas_png(mapped_board_data: &Vec<u8>, path: &str, info: &PartialPxlsIn
 async fn main() {
     let args = Args::parse();
 
+    print!("Fetching info... ");
+    io::stdout().flush().unwrap();
+
     let info = fetch_info(&"https://pxls.space/info".to_owned())
         .await.expect("Unable to fetch info");
 
+    println!("done");
+    print!("Fetching board data... ");
+    io::stdout().flush().unwrap();
+
     let board_data = fetch_board_data(&"https://pxls.space/boarddata".to_owned())
         .await.expect("Unable to fetch board data");
+    
+    println!("done");
+    print!("Mapping board data to palette colors... ");
+    io::stdout().flush().unwrap();
 
     let mapped_board_data_palette = map_board_data_palette(&board_data, &info)
         .await;
+
+    println!("done");
+    print!("Writing canvas image... ");
+    io::stdout().flush().unwrap();
     
     make_canvas_png(&mapped_board_data_palette, &args.path, &info, &args);
+
+    println!("done");
 }
